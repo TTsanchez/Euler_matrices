@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фотогалерея с подписями</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0px;
+            background-color: rgba(0,0,0,0.1);
+        }
+        
+        .gallery-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .slide-container {
+            display: none;
+            text-align: center;
+        }
+        
+        .slide-container.active {
+            display: block;
+            animation: fade 0.5s;
+        }
+        
+        .slide-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .slide-caption {
+            font-size: 18px;
+            color: #333;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        
+        .gallery-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+        
+        .gallery-btn {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .gallery-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .gallery-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .slide-indicators {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #bbb;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+        
+        .indicator.active {
+            background-color: #4CAF50;
+        }
+        
+        @keyframes fade {
+            from {opacity: 0.4}
+            to {opacity: 1}
+        }
+    </style>
+</head>
+<body>
+    <div class="gallery-container">
+        <!-- Слайд 1 -->
+        <div class="slide-container active">
+            <img src="https://i.postimg.cc/kMpNydTD/image.png" class="slide-image" width="50%"><img src="https://i.postimg.cc/44PN9zQ1/image.png" class="slide-image" width="50%">
+            <img src="ggrh" alt="14" class="slide-image" width="50%"><img src="https://i.postimg.cc/hj7ZqbPR/image.png" class="slide-image" width="50%">
+        </div>
+        
+        <!-- Слайд 2 -->
+        <div class="slide-container">
+            <img src="https://i.postimg.cc/YqX6bLM6/image.png" width="50%" class="slide-image" ><img src="hg" width="50%" alt="26" class="slide-image" >
+            <img src="https://i.postimg.cc/65GZLjbX/image.png" alt="30" width="50%" class="slide-image" ><img src="" alt="34" width="50%" class="slide-image" >
+        </div>
+        
+        <!-- Слайд 3 -->
+        <div class="slide-container">
+            <img src="" width="50%" class="slide-image" ><img src="" width="50%" class="slide-image" >
+            <img src="" width="50%" class="slide-image" ><img src="" width="50%" class="slide-image" >
+        </div>
+        
+        <!-- Слайд 4 -->
+        <div class="slide-container">
+            <img src="" width="50%" class="slide-image" ><img src="" width="50%" class="slide-image" >
+            <img src="" width="50%" class="slide-image" ><img src="" width="50%" class="slide-image" >
+        </div>
+        
+        <!-- Слайд 5 -->
+        <div class="slide-container">
+            <img src="" width="50%" class="slide-image" ><img src="" width="50%" class="slide-image" >
+            <img src="" width="50%" class="slide-image" ><img src="" width="50%" class="slide-image" >
+        </div>
+        
+        <!-- Слайд 6 -->
+        <div class="slide-container">
+            <img src="" width="50%" class="slide-image" ><img src="" width="50%" class="slide-image" >
+            <img src="" width="50%" class="slide-image" ><img src="" width="50%" class="slide-image" >
+        </div>
+        
+        <!-- Слайд 7 -->
+        <div class="slide-container">
+            <img src="https://i.postimg.cc/MTB2k0Xn/image.png" width="50%" class="slide-image" ><img src="" width="50%" alt="106" class="slide-image" >
+            <img src="https://i.postimg.cc/V5yCL5qz/image.png" width="50%" class="slide-image" ><img alt="114" src="" width="50%" class="slide-image" >
+        </div>
+        
+        <!-- Элементы управления -->
+        <div class="gallery-controls">
+            <button class="gallery-btn" onclick="prevSlide()">Назад</button>
+            <button class="gallery-btn" onclick="nextSlide()">Вперед</button>
+        </div>
+        
+        <!-- Индикаторы -->
+        <div class="slide-indicators" id="indicators-container">
+            <!-- Индикаторы добавляются автоматически через JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide-container');
+        
+        // Инициализация галереи
+        function initGallery() {
+            updateButtons();
+            createIndicators();
+        }
+        
+        // Показать слайд
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            updateIndicators();
+            updateButtons();
+        }
+        
+        // Следующий слайд
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+        
+        // Предыдущий слайд
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+        
+        // Обновление состояния кнопок
+        function updateButtons() {
+            const buttons = document.querySelectorAll('.gallery-btn');
+            buttons[0].disabled = currentSlide === 0;
+            buttons[1].disabled = currentSlide === slides.length - 1;
+        }
+        
+        // Создание индикаторов
+        function createIndicators() {
+            const container = document.getElementById('indicators-container');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < slides.length; i++) {
+                const indicator = document.createElement('span');
+                indicator.className = 'indicator';
+                if (i === 0) indicator.classList.add('active');
+                indicator.onclick = () => showSlide(i);
+                container.appendChild(indicator);
+            }
+        }
+        
+        // Обновление индикаторов
+        function updateIndicators() {
+            const indicators = document.querySelectorAll('.indicator');
+            indicators.forEach((indicator, index) => {
+                if (index === currentSlide) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            });
+        }
+        
+        // Обработка клавиатуры
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevSlide();
+            if (e.key === 'ArrowRight') nextSlide();
+        });
+        
+        // Инициализация при загрузке
+        window.onload = initGallery;
+    </script>
+</body>
+</html>
