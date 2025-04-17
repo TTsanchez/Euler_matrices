@@ -162,23 +162,27 @@ class EulerMatrixApp(QMainWindow):
                 a[0] = 1
                 b[0] = 1
 
-            elif q > 0 and int(round(np.sqrt(q))) ** 2 == q and isprime(int(round(np.sqrt(q)))):
-                # Универсальный случай: q = p^2, p — простое
-                p = int(round(np.sqrt(q)))
-                GF = galois.GF(p ** 2)
-                elements = GF.elements  # все элементы поля GF(p²)
-                # Вычисляем квадратичный характер χ(x)
-                chi = {}
-                for x in elements[1:]:  # исключаем 0
-                    chi[int(x)] = 1 if x ** ((p ** 2 - 1) // 2) == 1 else -1
-                chi[0] = 0
-                # Формируем векторы a и b из χ(x), с нужным циклическим смещением
-                a = np.array([chi[int(elements[i % len(elements)])] for i in range(q)])
-                b = np.array([chi[int(elements[(i + q) % len(elements)])] for i in range(q)])
-                a[0] = 1
-                b[0] = 1
 
-
+            # Универсальный метод: если q = p^m, p — простое
+            elif any(isprime(p) and p**m == q for p in range(2, q) for m in range(2, int(np.log2(q)) + 2)):
+                for p in range(2, q):
+                    if not isprime(p):
+                        continue
+                    m = 1
+                    while p ** m < q:
+                        m += 1
+                    if p ** m == q:
+                        GF = galois.GF(p ** m)
+                        elements = GF.elements
+                        chi = {}
+                        for x in elements[1:]:
+                            chi[int(x)] = 1 if x ** ((GF.order - 1) // 2) == 1 else -1
+                        chi[0] = 0
+                        a = np.array([chi[int(elements[i % len(elements)])] for i in range(q)])
+                        b = np.array([chi[int(elements[(i + q) % len(elements)])] for i in range(q)])
+                        a[0] = 1
+                        b[0] = 1
+                        n3p = p
 
             else:
                 raise ValueError(f"Для n={n} (t={t}) нет известного метода построения")
@@ -213,7 +217,7 @@ class EulerMatrixApp(QMainWindow):
             method = (
                 'Символы Лежандра' if isprime(q) else
                 f'Поле Галуа GF({q2})' if isprime(q2) else
-                f'Специальная конструкция (GF({np.sqrt(q)}²))'
+                f'Специальная конструкция (GF({n3p}^{m}))'
             )
 
             info_text = f"""
