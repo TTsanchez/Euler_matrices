@@ -184,6 +184,42 @@ class EulerMatrixApp(QMainWindow):
                         b[0] = 1
                         n3p = p
 
+            # Метод сжатия через орбиты циклической группы (универсальный fallback)
+            elif q > 2:
+                # Универсальный метод: орбиты циклической группы Z_q
+                G = np.arange(q)
+                used = set()
+                orbits = []
+
+                # Используем генератор g=2 (или другой), создаем орбиты
+                g = 2
+                for i in range(q):
+                    if i in used:
+                        continue
+                    orbit = []
+                    j = i
+                    while j not in orbit:
+                        orbit.append(j)
+                        used.add(j)
+                        j = (j * g) % q
+                    orbits.append(orbit)
+
+                a = np.zeros(q, dtype=int)
+                sign = 1
+                for orbit in orbits:
+                    for idx in orbit:
+                        a[idx] = sign
+                    sign *= -1
+
+                # b — циклический сдвиг a
+                b = np.roll(a, q // 2)
+
+                a[0] = 1
+                b[0] = 1
+                print(f"Метод орбит циклической группы (g={g}, Z_{q})")
+
+                method = f"Метод орбит (Z_{q} циклическая группа)"
+
             else:
                 raise ValueError(f"Для n={n} (t={t}) нет известного метода построения")
 
@@ -217,7 +253,9 @@ class EulerMatrixApp(QMainWindow):
             method = (
                 'Символы Лежандра' if isprime(q) else
                 f'Поле Галуа GF({q2})' if isprime(q2) else
-                f'Специальная конструкция (GF({n3p}^{m}))'
+                f'Специальная конструкция  (GF({n3p}^{m}))' if any(isprime(p) and p**m == q for p in range(2, q)
+                                                                   for m in range(2, int(np.log2(q)) + 2)) else
+                f"Метод орбит циклической группы (g={g}, Z_{q})"
             )
 
             info_text = f"""
